@@ -7,4 +7,4 @@ services:
     startCommand: "gunicorn -w 4 -k uvicorn.workers.UvicornWorker api:app"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11 # Specify a stable Python version
+        value: 3.11.4 # <-- THIS IS THE ONLY CHANGE
