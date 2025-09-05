@@ -3,7 +3,7 @@ import numpy as np
 
 # Load the AI model. This is slow, so we do it once when the script starts.
 print("Loading sentence-transformer model...")
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer('paraphrase-MiniLM-L3-v2')
 print("Model loaded.")
 
 def analyze_qae_score(content: str) -> int:
