@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+gunicorn
+python-dotenv
+sqlalchemy
+mysql-connector-python
+requests
+beautifulsoup4
+boto3
+numpy
