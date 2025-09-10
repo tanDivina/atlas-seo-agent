@@ -22,7 +22,7 @@ class ScrapedPage(Base):
     scraped_at = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(String(50), default="scraped")
     qae_score = Column(Integer, default=0)
-    content_embedding = Column(Text, nullable=True)  # Store as JSON string for PostgreSQL
+    content_embedding = Column(Text, nullable=True)  # Store as JSON string for TiDB VECTOR
 
 def create_tables():
     print("Checking and creating tables if necessary...")
