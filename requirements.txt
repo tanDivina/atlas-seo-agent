@@ -9,3 +9,4 @@ beautifulsoup4
 boto3
 numpy
 pydantic
+psycopg2-binary
