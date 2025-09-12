@@ -46,7 +46,7 @@ def search_similar_articles(request: UrlRequest):
     content = scrape_url(target_url)
     if not content: return {"error": "Failed to scrape the target URL for search."}
     search_embedding = generate_embedding_for_long_text(content)
-    search_embedding_str = str(search_embedding.tolist())
+    search_embedding_str = str(search_embedding.tolist())[1:-1]  # Remove brackets for TiDB vector format
     db = SessionLocal()
     try:
         query = text(f"""
