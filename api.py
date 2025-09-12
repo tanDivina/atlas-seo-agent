@@ -47,11 +47,11 @@ def search_similar_articles(request: UrlRequest):
     content = scrape_url(target_url)
     if not content: return {"error": "Failed to scrape the target URL for search."}
     search_embedding = generate_embedding_for_long_text(content)
-    search_embedding_str = ','.join(map(str, search_embedding.tolist()))  # Comma-separated floats for VECTOR literal
+    search_embedding_str = json.dumps(search_embedding.tolist())  # JSON array string for VEC_FROM_TEXT
     db = SessionLocal()
     try:
         query = text(f"""
-            SELECT url, qae_score, VEC_L2_DISTANCE(CAST(content_embedding AS VECTOR(1536)), VECTOR({search_embedding_str})) AS distance
+            SELECT url, qae_score, VEC_L2_DISTANCE(CAST(content_embedding AS VECTOR(1536)), VEC_FROM_TEXT('{search_embedding_str}')) AS distance
             FROM scraped_pages ORDER BY distance ASC LIMIT 5;
         """)
         results = db.execute(query).fetchall()
