@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -46,11 +47,11 @@ def search_similar_articles(request: UrlRequest):
     content = scrape_url(target_url)
     if not content: return {"error": "Failed to scrape the target URL for search."}
     search_embedding = generate_embedding_for_long_text(content)
-    search_embedding_str = str(search_embedding.tolist())[1:-1]  # Format as comma-separated values for VEC_FROM_TEXT
+    search_embedding_str = json.dumps(search_embedding.tolist())  # Format as JSON string
     db = SessionLocal()
     try:
         query = text(f"""
-            SELECT url, qae_score, VEC_L2_DISTANCE(content_embedding, VEC_FROM_TEXT('{search_embedding_str}')) AS distance
+            SELECT url, qae_score, VEC_L2_DISTANCE(content_embedding, '{search_embedding_str}') AS distance
             FROM scraped_pages ORDER BY distance ASC LIMIT 5;
         """)
         results = db.execute(query).fetchall()
