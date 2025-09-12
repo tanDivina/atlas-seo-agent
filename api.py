@@ -51,7 +51,7 @@ def search_similar_articles(request: UrlRequest):
     db = SessionLocal()
     try:
         query = text(f"""
-            SELECT url, qae_score, VEC_L2_DISTANCE(content_embedding, '{search_embedding_str}') AS distance
+            SELECT url, qae_score, VEC_L2_DISTANCE(VEC_FROM_TEXT(CAST(content_embedding AS CHAR)), VEC_FROM_TEXT('{search_embedding_str}')) AS distance
             FROM scraped_pages ORDER BY distance ASC LIMIT 5;
         """)
         results = db.execute(query).fetchall()
