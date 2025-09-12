@@ -46,11 +46,11 @@ def search_similar_articles(request: UrlRequest):
     content = scrape_url(target_url)
     if not content: return {"error": "Failed to scrape the target URL for search."}
     search_embedding = generate_embedding_for_long_text(content)
-    search_embedding_str = str(search_embedding.tolist())[1:-1]  # Remove brackets for TiDB vector format
+    search_embedding_str = '[' + str(search_embedding.tolist())[1:-1] + ']'  # Format as JSON array for VEC_FROM_TEXT
     db = SessionLocal()
     try:
         query = text(f"""
-            SELECT url, qae_score, VEC_L2_DISTANCE(content_embedding, VECTOR '{search_embedding_str}') AS distance
+            SELECT url, qae_score, VEC_L2_DISTANCE(content_embedding, VEC_FROM_TEXT('{search_embedding_str}')) AS distance
             FROM scraped_pages ORDER BY distance ASC LIMIT 5;
         """)
         results = db.execute(query).fetchall()
