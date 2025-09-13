@@ -27,10 +27,10 @@ def generate_content_strategy(competitor_texts: List[str]) -> str:
         str: The generated content strategy blueprint.
     """
     try:
-        prompt = f"""
+        prompt = """
         Analyze the following competitor content texts and generate a comprehensive content strategy blueprint for creating superior content:
         
-        {"\n\n".join(competitor_texts)}
+        """ + "\n\n".join(competitor_texts) + """
         
         Provide a step-by-step strategy for content creation, including key themes, keywords, structure, and optimization tips.
         """
