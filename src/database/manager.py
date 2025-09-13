@@ -1,5 +1,15 @@
 import os
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text
+from sqlalchemy.types import TypeDecorator, String as StringType
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+class Vector(TypeDecorator):
+    impl = StringType
+    cache_ok = True
+    def __init__(self, dim, *args, **kwargs):
+        super(Vector, self).__init__(*args, **kwargs)
+        self.dim = dim
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
@@ -22,7 +32,7 @@ class ScrapedPage(Base):
     scraped_at = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(String(50), default="scraped")
     qae_score = Column(Integer, default=0)
-    content_embedding = Column(Text, nullable=True)  # Store as JSON string for TiDB VECTOR
+    content_embedding = Column(Vector(1536), nullable=True)  # Titan v1 embedding size
 
 def create_tables():
     print("Checking and creating tables if necessary...")
