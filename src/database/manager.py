@@ -21,7 +21,7 @@ dotenv_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
 load_dotenv(dotenv_path=dotenv_path)
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-connect_args = {'ssl_verify_identity': True, 'ssl_ca': '/etc/ssl/cert.pem'}
+connect_args = {'ssl_verify_identity': False}
 engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
