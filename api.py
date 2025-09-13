@@ -29,7 +29,11 @@ from pydantic import BaseModel
 class KeywordRequest(BaseModel):
     keyword: str
 
+class StrategyRequest(BaseModel):
+    keyword: str
+
 from src.agents.researcher import find_top_competitor_urls
+from src.analyzers.strategist import generate_content_strategy
 
 class UrlRequest(BaseModel):
     url: str
@@ -78,5 +82,53 @@ def search_similar_articles(request: UrlRequest):
         try:
             competitor_urls = find_top_competitor_urls(request.keyword)
             return {"competitor_urls": competitor_urls}
+        except Exception as e:
+            return {"error": str(e)}
+    
+    @app.post("/api/generate-full-strategy")
+    def generate_full_strategy(request: StrategyRequest):
+        """
+        Generate full content strategy by orchestrating researcher, analyzer, and strategist agents.
+        """
+        try:
+            # Step 1: Get top 5 competitor URLs
+            competitor_urls = find_top_competitor_urls(request.keyword)
+            if not competitor_urls:
+                return {"error": "No competitor URLs found for the keyword."}
+            
+            # Step 2: Scrape and embed each competitor
+            db = SessionLocal()
+            try:
+                for url in competitor_urls:
+                    content = scrape_url(url)
+                    if not content:
+                        continue  # Skip if scraping fails
+                    embedding = generate_embedding_for_long_text(content)
+                    save_scraped_content(url, content, 0, embedding)  # qae_score=0 as not needed for strategy
+                
+                # Step 3: Use first competitor for vector search to get top 3 relevant articles
+                first_content = scrape_url(competitor_urls[0])
+                if not first_content:
+                    return {"error": "Failed to scrape first competitor for search."}
+                search_embedding = generate_embedding_for_long_text(first_content)
+                search_embedding_str = json.dumps(search_embedding.tolist())
+                
+                query = text(f"""
+                    SELECT url, content FROM scraped_pages
+                    ORDER BY VEC_L2_DISTANCE(VEC_FROM_TEXT(content_embedding), VEC_FROM_TEXT('{search_embedding_str}')) ASC
+                    LIMIT 3;
+                """)
+                results = db.execute(query).fetchall()
+                competitor_texts = [row.content for row in results if row.content]
+                
+                if not competitor_texts:
+                    return {"error": "No relevant articles found in database."}
+                
+                # Step 4: Generate strategy using Kimi AI
+                strategy = generate_content_strategy(competitor_texts)
+                
+                return {"keyword": request.keyword, "strategy": strategy}
+            finally:
+                db.close()
         except Exception as e:
             return {"error": str(e)}
