@@ -1,5 +1,6 @@
 import os
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text
+from sqlalchemy.dialects.mysql import JSON
 from sqlalchemy.types import TypeDecorator, String as StringType
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -20,7 +21,8 @@ dotenv_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
 load_dotenv(dotenv_path=dotenv_path)
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+connect_args = {'ssl_verify_identity': True, 'ssl_ca': '/etc/ssl/cert.pem'}
+engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -32,7 +34,7 @@ class ScrapedPage(Base):
     scraped_at = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(String(50), default="scraped")
     qae_score = Column(Integer, default=0)
-    content_embedding = Column(Vector(1536), nullable=True)  # Titan v1 embedding size
+    content_embedding = Column(JSON, nullable=True)
 
 def create_tables():
     print("Checking and creating tables if necessary...")
@@ -45,7 +47,7 @@ def save_scraped_content(url: str, content: str, qae_score: int, embedding: np.n
         existing_page = db.query(ScrapedPage).filter(ScrapedPage.url == url).first()
         embedding_list = embedding.tolist() if embedding is not None else None
         import json
-        embedding_json = json.dumps(embedding_list) if embedding_list else None
+        # No need for json.dumps, SQLAlchemy JSON type handles list serialization
 
         if existing_page:
             print(f"URL exists. Updating content, analysis, and embedding for: {url}")
@@ -53,10 +55,10 @@ def save_scraped_content(url: str, content: str, qae_score: int, embedding: np.n
             existing_page.scraped_at = datetime.datetime.utcnow()
             existing_page.status = "vectorized"
             existing_page.qae_score = qae_score
-            existing_page.content_embedding = embedding_json
+            existing_page.content_embedding = embedding_list
         else:
             print(f"Saving new content, analysis, and embedding for: {url}")
-            new_page = ScrapedPage(url=url, content=content, qae_score=qae_score, status="vectorized", content_embedding=embedding_json)
+            new_page = ScrapedPage(url=url, content=content, qae_score=qae_score, status="vectorized", content_embedding=embedding_list)
             db.add(new_page)
         db.commit()
         print(f"✅ Successfully saved vector embedding to the database.")
