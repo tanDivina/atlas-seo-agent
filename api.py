@@ -24,6 +24,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from pydantic import BaseModel
+
+class KeywordRequest(BaseModel):
+    keyword: str
+
+from src.agents.researcher import find_top_competitor_urls
+
 class UrlRequest(BaseModel):
     url: str
 
@@ -62,3 +69,14 @@ def search_similar_articles(request: UrlRequest):
         return {"search_target": target_url, "similar_articles": similar_articles}
     finally:
         db.close()
+    
+    @app.post("/api/research")
+    def research_competitors(request: KeywordRequest):
+        """
+        Find top 5 competitor URLs for the given keyword using Bright Data API.
+        """
+        try:
+            competitor_urls = find_top_competitor_urls(request.keyword)
+            return {"competitor_urls": competitor_urls}
+        except Exception as e:
+            return {"error": str(e)}
