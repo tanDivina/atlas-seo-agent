@@ -29,3 +29,29 @@ def generate_embedding(content: str) -> np.ndarray:
     embedding = model.encode(content, normalize_embeddings=True)
     print(f"Embedding generated with shape: {embedding.shape}")
     return embedding
+
+def generate_embedding_for_long_text(content: str, chunk_size: int = 512) -> np.ndarray:
+    """
+    Generates a vector embedding for long text by chunking and averaging embeddings.
+    This prevents OOM for large content.
+    """
+    if not content:
+        return np.array([])
+    
+    # Split content into chunks
+    chunks = [content[i:i+chunk_size] for i in range(0, len(content), chunk_size)]
+    print(f"Chunking content into {len(chunks)} chunks for embedding.")
+    
+    embeddings = []
+    for chunk in chunks:
+        chunk_embedding = generate_embedding(chunk)
+        if len(chunk_embedding) > 0:
+            embeddings.append(chunk_embedding)
+    
+    if not embeddings:
+        return np.array([])
+    
+    # Average the embeddings
+    avg_embedding = np.mean(embeddings, axis=0)
+    print(f"Averaged embedding shape: {avg_embedding.shape}")
+    return avg_embedding
