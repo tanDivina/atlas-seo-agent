@@ -4,7 +4,7 @@ services:
     env: python # This is the most important line! It FORCES the Python environment.
     plan: free
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn -w 4 -k uvicorn.workers.UvicornWorker api:app"
+    startCommand: "gunicorn -w 1 -k uvicorn.workers.UvicornWorker api:app"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.4 # <-- THIS IS THE ONLY CHANGE

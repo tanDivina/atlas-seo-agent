@@ -13,7 +13,7 @@ def scrape_url(url: str):
         response.raise_for_status()
         
         soup = BeautifulSoup(response.content, 'html.parser')
-        text_content = ' '.join(soup.stripped_strings)
+        text_content = ' '.join(soup.stripped_strings)[:10000]  # Truncate to 10k chars to avoid OOM
         
         print(f"Successfully scraped {len(text_content)} characters.")
         return text_content
