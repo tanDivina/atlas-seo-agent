@@ -1,7 +1,7 @@
 import os
 from typing import List, Dict
 from openai import OpenAI
-from google import genai
+from groq import Groq
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,11 +17,15 @@ client = OpenAI(
     base_url=OPENAI_BASE_URL,
 )
 
-client = genai.Client()
+# Gemini - temporarily disabled
+# from google import genai
+# client = genai.Client()
 
 groq_key = os.getenv("GROQ_API_KEY")
 if groq_key:
     groq_client = Groq(api_key=groq_key)
+else:
+    raise ValueError("GROQ_API_KEY environment variable not set.")
 
 def generate_content_strategy(competitor_texts: List[str]) -> str:
     """
@@ -44,18 +48,19 @@ def generate_content_strategy(competitor_texts: List[str]) -> str:
         """
         print("Sending to Moonshot:", prompt[:200] + "..." if len(prompt) > 200 else prompt)
 
-        gemini_key = os.getenv("GEMINI_API_KEY")
-        if gemini_key:
-            try:
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=prompt
-                )
-                print("Gemini response:", response.text[:200])
-                return response.text
-            except Exception as gemini_error:
-                print(f"Gemini error: {gemini_error}")
-                print("Falling back to Groq...")
+        # Gemini - temporarily disabled
+        # gemini_key = os.getenv("GEMINI_API_KEY")
+        # if gemini_key:
+        #     try:
+        #         response = client.models.generate_content(
+        #             model="gemini-2.5-flash",
+        #             contents=prompt
+        #         )
+        #         print("Gemini response:", response.text[:200])
+        #         return response.text
+        #     except Exception as gemini_error:
+        #         print(f"Gemini error: {gemini_error}")
+        #         print("Falling back to Groq...")
         
         if groq_key:
             try:
@@ -72,23 +77,9 @@ def generate_content_strategy(competitor_texts: List[str]) -> str:
                 return groq_response.choices[0].message.content
             except Exception as groq_error:
                 print(f"Groq error: {groq_error}")
-                print("Falling back to Moonshot...")
-        
-        try:
-            response = client.chat.completions.create(
-                model="kimi-k2-turbo-preview",
-                messages=[
-                    {"role": "system", "content": "You are a content strategist AI. Provide detailed, actionable content strategies based on competitor analysis."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=1500
-            )
-            print("Moonshot response:", response.choices[0].message.content[:200] if response.choices else "Empty response")
-            return response.choices[0].message.content or "No response from Moonshot - check quota/key."
-        except Exception as e:
-            print(f"Moonshot error: {e}")
-            return f"Strategy generation failed: {str(e)}. Verify Moonshot API key and quota."
+                return f"Strategy generation failed: {str(groq_error)}. Verify Groq API key and quota."
+        else:
+            return "No GROQ_API_KEY set. Please configure it for Kimi via Groq."
     except Exception as e:
         print(f"Exception in generate_content_strategy: {e}")
         raise Exception(f"Failed to generate content strategy: {e}")
