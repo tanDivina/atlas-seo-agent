@@ -1,5 +1,7 @@
 # Atlas SEO Agent
 
+**Elevator Pitch:** AI-Powered SEO Strategy Generator - Scrapes competitors, analyzes content with vector search, and delivers actionable optimization blueprints to outrank your rivals.
+
 A comprehensive SEO analysis and optimization tool built with Python.
 
 ## Features
