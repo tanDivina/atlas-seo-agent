@@ -4,6 +4,7 @@ gunicorn
 python-dotenv
 sqlalchemy
 mysql-connector-python
+mysqlclient
 requests
 beautifulsoup4
 sentence-transformers
