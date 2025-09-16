@@ -114,6 +114,7 @@ def generate_full_strategy(request: KeywordRequest):
         
         db = SessionLocal()
         similar_texts = []
+        results = []
         try:
             print("Executing TiDB vector similarity query...")
             query = text("""
@@ -129,6 +130,7 @@ def generate_full_strategy(request: KeywordRequest):
                 print(f"Retrieved {len(similar_texts)} competitor texts from TiDB vector search")
         except Exception as vector_error:
             print(f"TiDB vector query failed (expected if not enabled): {vector_error}")
+            results = []  # Ensure results is defined for suggested_article
             # Fallback to text search on scraped content
             try:
                 print("Falling back to text search...")
