@@ -60,7 +60,7 @@ def generate_content_strategy(competitor_texts: List[str]) -> str:
         if groq_key:
             try:
                 groq_response = groq_client.chat.completions.create(
-                    model="llama-3.1-8b-instant",
+                    model="moonshotai/kimi-k2-instruct-0905",
                     messages=[
                         {"role": "system", "content": "You are a content strategist AI. Provide detailed, actionable content strategies based on competitor analysis."},
                         {"role": "user", "content": prompt}
