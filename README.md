@@ -164,6 +164,20 @@ We built Atlas SEO Agent using a modern Python stack:
 
 The workflow integrates these components seamlessly through a modular structure in src/.
 
+## Built with
+
+- **Language**: Python 3.11
+- **Web Framework**: FastAPI for API endpoints
+- **Server**: Gunicorn with Uvicorn workers
+- **Database**: TiDB (MySQL-compatible) with SQLAlchemy ORM
+- **Vector Search**: TiDB native vector functions (VEC_L2_DISTANCE, VECTOR_FROM_BINARY)
+- **Web Scraping**: requests and BeautifulSoup4
+- **Embeddings**: sentence-transformers (paraphrase-MiniLM-L3-v2 model)
+- **AI Strategy Generation**: OpenAI client with Moonshot Kimi model
+- **SERP Scraping**: Bright Data API
+- **Deployment Platform**: Render
+- **Other Libraries**: numpy for numerical operations, python-dotenv for environment management, struct for binary packing
+
 ## Challenges we ran into
 
 - **Memory Management**: Handling large scraped content and embedding generation caused out-of-memory errors on free-tier hosting. We solved this with content truncation, chunked embedding processing, and worker optimization.
