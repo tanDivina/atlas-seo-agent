@@ -134,9 +134,9 @@ def generate_full_strategy(request: KeywordRequest):
             # Fallback to text search on scraped content
             try:
                 print("Falling back to text search...")
-                for text in competitor_texts:
-                    if request.keyword.lower() in text.lower():
-                        similar_texts.append(text)
+                for competitor_text in competitor_texts:
+                    if request.keyword.lower() in competitor_text.lower():
+                        similar_texts.append(competitor_text)
                 similar_texts = similar_texts[:3]
                 print(f"Fallback text search retrieved {len(similar_texts)} texts")
             except Exception as text_error:
