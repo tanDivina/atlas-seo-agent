@@ -43,7 +43,7 @@ def generate_content_strategy(competitor_texts: List[str]) -> str:
         gemini_key = os.getenv("GEMINI_API_KEY")
         if gemini_key:
             try:
-                gemini_model = genai.GenerativeModel('gemini-1.5-pro')
+                gemini_model = genai.GenerativeModel('gemini-1.5-pro-latest')
                 response = gemini_model.generate_content(prompt)
                 print("Gemini response:", response.text[:200])
                 return response.text
@@ -52,7 +52,7 @@ def generate_content_strategy(competitor_texts: List[str]) -> str:
                 print("Falling back to Moonshot...")
         try:
             response = client.chat.completions.create(
-                model="kimi-k2-0905-preview",
+                model="kimi-k2-turbo-preview",
                 messages=[
                     {"role": "system", "content": "You are a content strategist AI. Provide detailed, actionable content strategies based on competitor analysis."},
                     {"role": "user", "content": prompt}
