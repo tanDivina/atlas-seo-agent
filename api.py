@@ -55,15 +55,15 @@ def search_similar_articles(request: UrlRequest):
     
     search_embedding = generate_embedding_for_long_text(content)
     search_embedding_list = search_embedding.tolist()
-    search_binary = struct.pack('1536f', *search_embedding_list)
+    search_binary = struct.pack('384f', *search_embedding_list)
     
     db = SessionLocal()
     try:
         query = text("""
             SELECT url, qae_score,
-                   VEC_L2_DISTANCE(VECTOR_FROM_BINARY(content_embedding, 1536), VECTOR_FROM_BINARY(:search_vec, 1536)) AS distance
+                   VEC_L2_DISTANCE(VECTOR_FROM_BINARY(content_embedding, 384), VECTOR_FROM_BINARY(:search_vec, 384)) AS distance
             FROM scraped_pages
-            WHERE content_embedding IS NOT NULL 
+            WHERE content_embedding IS NOT NULL
             ORDER BY distance ASC LIMIT 5;
         """)
         
@@ -109,7 +109,7 @@ def generate_full_strategy(request: KeywordRequest):
         first_content = competitor_texts[0]
         search_embedding = generate_embedding_for_long_text(first_content)
         search_embedding_list = search_embedding.tolist()
-        search_binary = struct.pack('1536f', *search_embedding_list)
+        search_binary = struct.pack('384f', *search_embedding_list)
         print("Generated search embedding, binary length:", len(search_binary))
         
         db = SessionLocal()
@@ -119,7 +119,7 @@ def generate_full_strategy(request: KeywordRequest):
             query = text("""
                 SELECT url, content FROM scraped_pages
                 WHERE content_embedding IS NOT NULL
-                ORDER BY VEC_L2_DISTANCE(VECTOR_FROM_BINARY(content_embedding, 1536), VECTOR_FROM_BINARY(:search_vec, 1536)) ASC
+                ORDER BY VEC_L2_DISTANCE(VECTOR_FROM_BINARY(content_embedding, 384), VECTOR_FROM_BINARY(:search_vec, 384)) ASC
                 LIMIT 5;
             """)
             

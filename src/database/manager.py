@@ -41,7 +41,7 @@ def save_scraped_content(url: str, content: str, qae_score: int, embedding: np.n
     db = SessionLocal()
     try:
         existing_page = db.query(ScrapedPage).filter(ScrapedPage.url == url).first()
-        embedding_binary = struct.pack('1536f', *embedding) if embedding is not None else None
+        embedding_binary = struct.pack('384f', *embedding) if embedding is not None else None
         # Save as binary bytes
         if existing_page:
             print(f"URL exists. Updating content, analysis, and embedding for: {url}")
@@ -72,7 +72,7 @@ def search_similar_articles(search_embedding: np.ndarray, keyword: str = "") -> 
     try:
         # Test if vector functions are available
         with engine.connect() as conn:
-            result = conn.execute(text("SELECT VEC_L2_DISTANCE(VECTOR_FROM_BINARY('0000', 1536), VECTOR_FROM_BINARY('0000', 1536))")).fetchone()
+            result = conn.execute(text("SELECT VEC_L2_DISTANCE(VECTOR_FROM_BINARY('0000', 384), VECTOR_FROM_BINARY('0000', 384))")).fetchone()
             has_vector_support = True
             print("Vector search functions are available in TiDB.")
     except Exception as ve:
@@ -82,12 +82,12 @@ def search_similar_articles(search_embedding: np.ndarray, keyword: str = "") -> 
     if has_vector_support:
         try:
             # Use vector search
-            search_binary = struct.pack('1536f', *search_embedding)
+            search_binary = struct.pack('384f', *search_embedding)
             with engine.connect() as conn:
                 results = conn.execute(text("""
-                    SELECT content FROM scraped_pages 
+                    SELECT content FROM scraped_pages
                     WHERE content_embedding IS NOT NULL
-                    ORDER BY VEC_L2_DISTANCE(VECTOR_FROM_BINARY(content_embedding, 1536), VECTOR_FROM_BINARY(:search_vec, 1536)) ASC 
+                    ORDER BY VEC_L2_DISTANCE(VECTOR_FROM_BINARY(content_embedding, 384), VECTOR_FROM_BINARY(:search_vec, 384)) ASC
                     LIMIT 3
                 """), {"search_vec": search_binary}).fetchall()
                 competitor_texts = [row[0] for row in results if row[0]]
