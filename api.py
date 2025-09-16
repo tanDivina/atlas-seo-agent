@@ -117,10 +117,10 @@ def generate_full_strategy(request: KeywordRequest):
         try:
             print("Executing TiDB vector similarity query...")
             query = text("""
-                SELECT content FROM scraped_pages
+                SELECT url, content FROM scraped_pages
                 WHERE content_embedding IS NOT NULL
                 ORDER BY VEC_L2_DISTANCE(VECTOR_FROM_BINARY(content_embedding, 1536), VECTOR_FROM_BINARY(:search_vec, 1536)) ASC
-                LIMIT 3;
+                LIMIT 5;
             """)
             
             results = db.execute(query, {"search_vec": search_binary}).fetchall()
@@ -150,8 +150,17 @@ def generate_full_strategy(request: KeywordRequest):
         print("\n[4/4] Generating final content blueprint with Kimi AI...")
         strategy_blueprint = generate_content_strategy(similar_texts)
         
+        # Add suggested article from top similar result
+        suggested_article = None
+        if results and len(results) > 0:
+            top_result = results[0]
+            suggested_article = {"url": top_result.url, "content": top_result.content}
+        
         print("\n--- ✅ Full Strategy Generation Complete! ---")
-        return {"strategy_blueprint": strategy_blueprint}
+        return {
+            "strategy_blueprint": strategy_blueprint,
+            "suggested_article": suggested_article
+        }
 
     except Exception as e:
         print(f"An unexpected error occurred in the full strategy workflow: {e}")
