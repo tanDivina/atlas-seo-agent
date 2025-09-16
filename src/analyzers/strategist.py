@@ -1,7 +1,7 @@
 import os
 from typing import List, Dict
 from openai import OpenAI
-import google.genai as genai
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
