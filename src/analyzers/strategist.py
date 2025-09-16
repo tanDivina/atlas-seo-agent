@@ -1,7 +1,7 @@
 import os
 from typing import List, Dict
 from openai import OpenAI
-import google.generativeai as genai
+import google.genai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -43,7 +43,7 @@ def generate_content_strategy(competitor_texts: List[str]) -> str:
         gemini_key = os.getenv("GEMINI_API_KEY")
         if gemini_key:
             try:
-                gemini_model = genai.GenerativeModel('gemini-1.5-pro-latest')
+                gemini_model = genai.GenerativeModel('gemini-2.5-pro')
                 response = gemini_model.generate_content(prompt)
                 print("Gemini response:", response.text[:200])
                 return response.text
