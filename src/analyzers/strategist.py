@@ -19,6 +19,10 @@ client = OpenAI(
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
+groq_key = os.getenv("GROQ_API_KEY")
+if groq_key:
+    groq_client = Groq(api_key=groq_key)
+
 def generate_content_strategy(competitor_texts: List[str]) -> str:
     """
     Generate a content strategy using Kimi AI based on competitor content texts.
@@ -49,7 +53,25 @@ def generate_content_strategy(competitor_texts: List[str]) -> str:
                 return response.text
             except Exception as gemini_error:
                 print(f"Gemini error: {gemini_error}")
+                print("Falling back to Groq...")
+        
+        if groq_key:
+            try:
+                groq_response = groq_client.chat.completions.create(
+                    model="llama3-70b-8192",
+                    messages=[
+                        {"role": "system", "content": "You are a content strategist AI. Provide detailed, actionable content strategies based on competitor analysis."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.7,
+                    max_tokens=1500
+                )
+                print("Groq response:", groq_response.choices[0].message.content[:200])
+                return groq_response.choices[0].message.content
+            except Exception as groq_error:
+                print(f"Groq error: {groq_error}")
                 print("Falling back to Moonshot...")
+        
         try:
             response = client.chat.completions.create(
                 model="kimi-k2-turbo-preview",
