@@ -1,6 +1,7 @@
 import os
 from typing import List, Dict
 from openai import OpenAI
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,6 +16,8 @@ client = OpenAI(
     api_key=OPENAI_API_KEY,
     base_url=OPENAI_BASE_URL,
 )
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 def generate_content_strategy(competitor_texts: List[str]) -> str:
     """
@@ -37,6 +40,16 @@ def generate_content_strategy(competitor_texts: List[str]) -> str:
         """
         print("Sending to Moonshot:", prompt[:200] + "..." if len(prompt) > 200 else prompt)
 
+        gemini_key = os.getenv("GEMINI_API_KEY")
+        if gemini_key:
+            try:
+                gemini_model = genai.GenerativeModel('gemini-1.5-pro')
+                response = gemini_model.generate_content(prompt)
+                print("Gemini response:", response.text[:200])
+                return response.text
+            except Exception as gemini_error:
+                print(f"Gemini error: {gemini_error}")
+                print("Falling back to Moonshot...")
         try:
             response = client.chat.completions.create(
                 model="kimi-k2-0905-preview",
