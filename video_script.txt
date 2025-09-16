@@ -1,0 +1,17 @@
+Hello everyone! I'm excited to introduce Atlas SEO Agent, your AI-powered SEO strategy generator that scrapes competitors, analyzes content with vector search, and delivers actionable optimization blueprints to help you outrank your rivals.
+
+Imagine this: You have a keyword like "best wireless earbuds." Instead of manually researching competitors, Atlas SEO Agent automatically finds the top-ranking pages using advanced SERP scraping from Bright Data. It then robustly extracts and cleans the content from those sites, handling errors and duplicates seamlessly.
+
+Next, it generates embeddings for the content using sentence-transformers and stores them in TiDB, a scalable database with native vector search. This allows for semantic similarity matching – finding not just keyword matches, but truly relevant competitor content based on meaning.
+
+For the magic, it feeds this analysis to Kimi AI from Moonshot, which crafts a comprehensive strategy: key themes to cover, optimal keywords to target, content structure recommendations, and SEO optimization tips to create superior content.
+
+And here's a new feature: it even suggests a top article from the database for reference, so you can see exactly what works.
+
+We built this with Python and FastAPI for the backend, TiDB for vector-powered storage, and deployed on Render for easy scaling. We tackled challenges like memory management for large texts with chunking and truncation, and ensured fallbacks for reliability.
+
+I'm proud of creating an end-to-end tool that saves hours of manual work, making advanced SEO accessible to everyone.
+
+What's next? Multi-language support, real-time monitoring, and a visual dashboard.
+
+Check out the GitHub repo, try the API, and let me know what you think. Thanks for watching!
